@@ -8,6 +8,7 @@ const Grid: React.FC = () => {
     const [viewport, setViewport] = useState({ x: 0, y: 0})
     const [isGameOver, setIsGameOver] = useState(false)
     const [isFlagging, setIsFlagging] = useState(false)
+    const [score, setScore] = useState(0);
 
     const getCellKey = (x: number, y: number) => `${x},${y}`
 
@@ -109,6 +110,7 @@ const Grid: React.FC = () => {
                     setIsGameOver(true)
                     return newGrid
                 }
+                setScore(score+(Math.floor(Math.random() * (50 - 35 + 1) + 35)))
 
                 revealCell(newGrid, x, y)
                 return newGrid
@@ -135,6 +137,7 @@ const Grid: React.FC = () => {
 
     const restartGame = () => {
         setIsGameOver(false)
+        setScore(0)
     }
 
     const getNumberColor = (value: number | "bomb") => {
@@ -162,6 +165,7 @@ const Grid: React.FC = () => {
 
     return (
         <>
+            <h1 className="text-3xl font-semibold">{score}</h1>
             <button
                 onClick={() => setIsFlagging(!isFlagging)}
                 className="border-gray-600 border bg-gray-500 w-56 h-8 text-white text-lg"
