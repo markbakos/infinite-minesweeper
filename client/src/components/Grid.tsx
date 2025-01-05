@@ -1,4 +1,4 @@
-import { Cell } from "../types"
+import { Cell, Score } from "../types"
 import React, {useEffect, useState} from "react"
 import {Bomb, ChevronRight, ChevronLeft, ChevronUp, ChevronDown, Flag, RefreshCw} from "lucide-react";
 
@@ -11,7 +11,8 @@ const Grid: React.FC = () => {
     const [isFlagging, setIsFlagging] = useState(false)
     const [score, setScore] = useState(0)
     const [startTime, setStartTime] = useState<Date | null>(null)
-    const [elapsedTime, setElapsedTime] = useState(0);
+    const [elapsedTime, setElapsedTime] = useState(0)
+    const [bestScore, setBestScore] = useState<Score>({score: null, time: null})
 
     const getCellKey = (x: number, y: number) => `${x},${y}`
 
@@ -118,6 +119,14 @@ const Grid: React.FC = () => {
                 if (cell.value === "bomb") {
                     cell.revealed = true
                     setIsGameOver(true)
+
+                    if(bestScore.score === null || bestScore.time === null || score > bestScore.score || (score === bestScore.score && elapsedTime < bestScore.time)){
+                        setBestScore({score: score, time: elapsedTime})
+                        localStorage.setItem('bestScore_infinite', score.toString())
+                        localStorage.setItem('bestScoreTime_infinite', elapsedTime.toString())
+                    }
+
+
                     setStartTime(null)
                     return newGrid
                 }
@@ -130,6 +139,15 @@ const Grid: React.FC = () => {
 
     useEffect(() => {
         generateCells(viewport.x, viewport.y, viewSize, viewSize)
+
+        const score = localStorage.getItem("bestScore_infinite")
+        const time = localStorage.getItem("bestScoreTime_infinite")
+
+        if (score !== null && time !== null){
+            setBestScore({
+                score: parseInt(score),
+                time: parseInt(time)})
+        }
     }, []);
 
     useEffect(() => {
@@ -238,12 +256,23 @@ const Grid: React.FC = () => {
             <div className="flex justify-between items-center w-1/2">
                 <div className="text-center">
                     <h2 className="text-lg font-semibold text-gray-400">Score</h2>
-                    <p className="text-3xl font-bold text-cyan-400">{score.toLocaleString()}</p>
+                    <p className="text-3xl font-bold text-gray-200">{score.toLocaleString()}</p>
                 </div>
                 <div className="text-center">
                     <h2 className="text-lg font-semibold text-gray-400">Time</h2>
-                    <p className="text-3xl font-bold text-green-500">{formatTime(elapsedTime)}</p>
+                    <p className="text-3xl font-bold text-gray-200">{formatTime(elapsedTime)}</p>
                 </div>
+            </div>
+            <div className="flex flex-col items-center">
+                <h1 className="text-gray-400 text-lg font-semibold">Best score:</h1>
+                {bestScore.score !== null && bestScore.time !== null ?
+                    <div className="text-xl font-bold text-gray-200">
+                        {bestScore.score.toLocaleString()}
+                        <span className="text-lg text-gray-300 mx-2">({formatTime(bestScore.time)})</span>
+                    </div>
+                    :
+                    <div className="text-xl font-bold text-gray-200">No scores yet!</div>
+                }
             </div>
 
             <button

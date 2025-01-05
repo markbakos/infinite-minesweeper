@@ -3,3 +3,8 @@ export type Cell = {
     value: number | 'bomb'
     flagged: boolean
 }
+
+export type Score = {
+    score: number | null
+    time: number | null
+}
