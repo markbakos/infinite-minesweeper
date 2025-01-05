@@ -1,5 +1,6 @@
 import { Cell } from "../types"
-import {useEffect, useState} from "react"
+import React, {useEffect, useState} from "react"
+import {Bomb, ChevronRight, ChevronLeft, ChevronUp, ChevronDown, Flag, RefreshCw} from "lucide-react";
 
 const Grid: React.FC = () => {
     const viewSize = 15
@@ -233,41 +234,62 @@ const Grid: React.FC = () => {
     };
 
     return (
-        <>
-            <h1 className="text-3xl font-semibold">{score.toLocaleString()}</h1>
-            <p className="text-xl">{formatTime(elapsedTime)}</p>
-            <button
-                onClick={() => setIsFlagging(!isFlagging)}
-                className="border-gray-600 border bg-gray-500 w-56 h-8 text-white text-lg"
-            >
-                {!isFlagging ? "Enable Flagging" : "Disable Flagging"}
-            </button>
-            <div className="mb-4 flex-col inline-flex items-center">
-                <button className="border border-gray-400 bg-gray-300 w-12 h-12 font-medium"
-                        onClick={() => handleMove(0, -2)}>Up
-                </button>
-                <div className="flex flex-row">
-                    <button className="border border-gray-400 bg-gray-300 w-12 h-12 font-medium"
-                            onClick={() => handleMove(-2, 0)}>Left
-                    </button>
-                    <div className="invisible w-12 h-12"></div>
-                    <button className="border border-gray-400 bg-gray-300 w-12 h-12 font-medium"
-                            onClick={() => handleMove(2, 0)}>Right
-                    </button>
+        <div className="flex flex-col items-center justify-center p-4">
+            <div className="flex justify-between items-center w-1/2">
+                <div className="text-center">
+                    <h2 className="text-lg font-semibold text-gray-400">Score</h2>
+                    <p className="text-3xl font-bold text-cyan-400">{score.toLocaleString()}</p>
                 </div>
-                <button className="border border-gray-400 bg-gray-300 w-12 h-12 font-medium"
-                        onClick={() => handleMove(0, 2)}>
-                    Down
-                </button>
+                <div className="text-center">
+                    <h2 className="text-lg font-semibold text-gray-400">Time</h2>
+                    <p className="text-3xl font-bold text-green-500">{formatTime(elapsedTime)}</p>
+                </div>
             </div>
 
-            <div className="inline-block">
+            <button
+                onClick={() => setIsFlagging(!isFlagging)}
+                className={`w-full py-2 px-4 rounded-md text-gray-900 font-semibold transition-all duration-300 mt-2 ${
+                    isFlagging
+                        ? 'bg-red-400 hover:bg-red-500'
+                        : 'bg-blue-400 hover:bg-blue-500'
+                }`}
+            >
+                {isFlagging ? 'Disable Flagging' : 'Enable Flagging'}
+            </button>
+
+            <div className="flex justify-center my-3">
+                <div className="grid grid-cols-3 gap-2">
+                    <div></div>
+                    <button onClick={() => handleMove(0, -2)}
+                            className="p-2 bg-gray-700 rounded-md hover:bg-gray-600 transition-colors">
+                        <ChevronUp className="w-6 h-6 text-yellow-400"/>
+                    </button>
+                    <div></div>
+                    <button onClick={() => handleMove(-2, 0)}
+                            className="p-2 bg-gray-700 rounded-md hover:bg-gray-600 transition-colors">
+                        <ChevronLeft className="w-6 h-6 text-yellow-400"/>
+                    </button>
+                    <div className="w-10 h-10"></div>
+                    <button onClick={() => handleMove(2, 0)}
+                            className="p-2 bg-gray-700 rounded-md hover:bg-gray-600 transition-colors">
+                        <ChevronRight className="w-6 h-6 text-yellow-400"/>
+                    </button>
+                    <div></div>
+                    <button onClick={() => handleMove(0, 2)}
+                            className="p-2 bg-gray-700 rounded-md hover:bg-gray-600 transition-colors">
+                        <ChevronDown className="w-6 h-6 text-yellow-400"/>
+                    </button>
+                    <div></div>
+                </div>
+            </div>
+
+            <div className="inline-block border-2 border-gray-500">
                 {[...Array(viewSize)].map((_, row) => (
                     <div key={row} className="flex">
                         {[...Array(viewSize)].map((_, col) => {
                             const x = viewport.x + col;
                             const y = viewport.y + row;
-                            const cell = grid.get(getCellKey(x, y)) || { revealed: false, value: 0, flagged: false };
+                            const cell = grid.get(getCellKey(x, y)) || {revealed: false, value: 0, flagged: false};
 
                             return (
                                 <div
@@ -275,7 +297,7 @@ const Grid: React.FC = () => {
                                     className={`w-8 h-8 border border-gray-500 bg-gray-200 ${
                                         cell.revealed
                                             ? cell.value === "bomb"
-                                                ? "bg-red-500"
+                                                ? "bg-red-400"
                                                 : "bg-gray-400"
                                             : "hover:bg-gray-300"
                                     }`}
@@ -283,7 +305,9 @@ const Grid: React.FC = () => {
                                     onContextMenu={(e) => handleFlag(e, x, y)}
                                 >
                                     {cell.revealed && cell.value === "bomb" && (
-                                        <p className="select-none text-center text-lg font-semibold">💣</p>
+                                        <p className="select-none text-lg font-semibold flex justify-center items-center h-full">
+                                            <Bomb className="w-5 h-5 text-red-900" />
+                                        </p>
                                     )}
                                     {cell.revealed && cell.value !== 0 && cell.value !== "bomb" && (
                                         <p className={`select-none text-center text-2xl font-bold ${getNumberColor(cell.value)}`}>
@@ -291,7 +315,9 @@ const Grid: React.FC = () => {
                                         </p>
                                     )}
                                     {cell.flagged && !cell.revealed && (
-                                        <p className="select-none text-center text-lg font-semibold">🚩</p>
+                                        <p className="select-none text-lg font-semibold flex items-center justify-center h-full">
+                                            <Flag className="w-6 h-6 text-red-600" />
+                                        </p>
                                     )}
                                 </div>
                             );
@@ -299,14 +325,15 @@ const Grid: React.FC = () => {
                     </div>
                 ))}
             </div>
+
             <button
                 onClick={restartGame}
-                className="border-gray-600 border bg-gray-500 w-32 h-8 text-white text-xl"
+                className="mt-4 w-full py-2 px-4 bg-green-400 hover:bg-green-500 text-gray-900 font-semibold rounded-md transition-all duration-300 flex items-center justify-center space-x-2"
             >
-                New Game
+                <RefreshCw className="w-5 h-5"/>
+                <span>New Game</span>
             </button>
-        </>
-
+        </div>
     )
 }
 
