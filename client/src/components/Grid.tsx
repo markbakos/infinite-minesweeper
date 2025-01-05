@@ -1,5 +1,5 @@
 import { Cell } from "../types"
-import {useEffect, useState} from "react";
+import {useEffect, useState} from "react"
 
 const Grid: React.FC = () => {
     const viewSize = 15
@@ -8,7 +8,9 @@ const Grid: React.FC = () => {
     const [viewport, setViewport] = useState({ x: 0, y: 0})
     const [isGameOver, setIsGameOver] = useState(false)
     const [isFlagging, setIsFlagging] = useState(false)
-    const [score, setScore] = useState(0);
+    const [score, setScore] = useState(0)
+    const [startTime, setStartTime] = useState<Date | null>(null)
+    const [elapsedTime, setElapsedTime] = useState(0);
 
     const getCellKey = (x: number, y: number) => `${x},${y}`
 
@@ -83,10 +85,17 @@ const Grid: React.FC = () => {
                 revealCell(newGrid, x+dx, y + dy)
             }
         }
+        else{
+            setScore(score+(Math.floor(Math.random() * (50 - 35 + 1) + 35)))
+        }
     }
 
     const handleClick = (x: number, y: number) => {
         if(isGameOver) return
+
+        if (!startTime) {
+            setStartTime(new Date())
+        }
 
         if(isFlagging){
             const cellKey = getCellKey(x, y)
@@ -108,9 +117,9 @@ const Grid: React.FC = () => {
                 if (cell.value === "bomb") {
                     cell.revealed = true
                     setIsGameOver(true)
+                    setStartTime(null)
                     return newGrid
                 }
-                setScore(score+(Math.floor(Math.random() * (50 - 35 + 1) + 35)))
 
                 revealCell(newGrid, x, y)
                 return newGrid
@@ -121,6 +130,16 @@ const Grid: React.FC = () => {
     useEffect(() => {
         generateCells(viewport.x, viewport.y, viewSize, viewSize)
     }, []);
+
+    useEffect(() => {
+        if (!startTime || isGameOver) return
+
+        const interval = setInterval(() => {
+            setElapsedTime(Math.floor((new Date().getTime() - startTime.getTime())))
+        }, 1000)
+
+        return () => clearInterval(interval)
+    }, [startTime, isGameOver]);
 
     const handleFlag = (e: React.MouseEvent, x: number, y: number)=> {
         e.preventDefault()
@@ -138,6 +157,50 @@ const Grid: React.FC = () => {
     const restartGame = () => {
         setIsGameOver(false)
         setScore(0)
+        setElapsedTime(0)
+        setStartTime(null)
+        const initialViewport = { x: 0, y: 0 }
+        setViewport(initialViewport)
+
+        const newGrid = new Map<string, Cell>()
+        for (let row = initialViewport.y; row < initialViewport.y + viewSize; row++) {
+            for (let col = initialViewport.x; col < initialViewport.x + viewSize; col++) {
+                const isBomb = Math.random() < bombChance
+                const key = getCellKey(col, row)
+                newGrid.set(key, {
+                    revealed: false,
+                    value: isBomb ? "bomb" : 0,
+                    flagged: false,
+                })
+            }
+        }
+
+        for (let row = initialViewport.y; row < initialViewport.y + viewSize; row++) {
+            for (let col = initialViewport.x; col < initialViewport.x + viewSize; col++) {
+                const key = getCellKey(col, row)
+                const cell = newGrid.get(key)!
+
+                if (cell.value === "bomb") continue
+
+                const directions = [
+                    [-1, -1], [-1, 0], [-1, 1],
+                    [0, -1],           [0, 1],
+                    [1, -1], [1, 0], [1, 1],
+                ]
+
+                let bombCount = 0;
+                for (const [dx, dy] of directions) {
+                    const neighborKey = getCellKey(col + dx, row + dy)
+                    if (newGrid.get(neighborKey)?.value === "bomb") {
+                        bombCount++
+                    }
+                }
+
+                cell.value = bombCount
+            }
+        }
+
+        setGrid(newGrid)
     }
 
     const getNumberColor = (value: number | "bomb") => {
@@ -163,9 +226,16 @@ const Grid: React.FC = () => {
         }
     }
 
+    const formatTime = (time: number) => {
+        const minutes = Math.floor(time / 60000);
+        const seconds = Math.floor((time % 60000) / 1000);
+        return `${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
+    };
+
     return (
         <>
-            <h1 className="text-3xl font-semibold">{score}</h1>
+            <h1 className="text-3xl font-semibold">{score.toLocaleString()}</h1>
+            <p className="text-xl">{formatTime(elapsedTime)}</p>
             <button
                 onClick={() => setIsFlagging(!isFlagging)}
                 className="border-gray-600 border bg-gray-500 w-56 h-8 text-white text-lg"
