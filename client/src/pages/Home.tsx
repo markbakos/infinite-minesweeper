@@ -1,22 +1,33 @@
 import { motion, Variants } from 'framer-motion'
 import {Bomb, Grid, ChevronRight} from 'lucide-react'
 import {Link} from "react-router-dom";
-import React, {useEffect, useState} from "react";
+import {useEffect, useState} from "react";
 import {Score} from "../types.ts";
 
 export const Home = () => {
 
     const [bestScoreInfinite, setBestScoreInfinite] = useState<Score>({score: null, time: null})
+    const [bestScoreNormal, setBestScoreNormal] = useState<Score>({score: null, time: null})
 
     useEffect(() => {
-        const score = localStorage.getItem("bestScore_infinite")
-        const time = localStorage.getItem("bestScoreTime_infinite")
+        const scoreInf = localStorage.getItem("bestScore_infinite")
+        const timeInf = localStorage.getItem("bestScoreTime_infinite")
 
-        if (score !== null && time !== null){
+        if (scoreInf !== null && timeInf !== null){
             setBestScoreInfinite({
-                score: parseInt(score),
-                time: parseInt(time)})
+                score: parseInt(scoreInf),
+                time: parseInt(timeInf)})
         }
+
+        const scoreNorm = localStorage.getItem("bestScore_infinite")
+        const timeNorm = localStorage.getItem("bestScoreTime_infinite")
+
+        if (scoreNorm !== null && timeNorm !== null){
+            setBestScoreNormal({
+                score: parseInt(scoreNorm),
+                time: parseInt(timeNorm)})
+        }
+
     }, []);
 
     const containerVariants: Variants = {
@@ -74,7 +85,7 @@ export const Home = () => {
             animate="visible"
         >
             <motion.h1
-                className="text-6xl font-bold text-white mb-8 text-center"
+                className="text-5xl sm:text-6xl font-bold text-white mb-8 text-center"
                 variants={itemVariants}
             >
                 Minesweeper
@@ -84,22 +95,44 @@ export const Home = () => {
                 className="flex flex-col space-y-4 w-full max-w-md"
                 variants={itemVariants}
             >
-                <motion.div
-                    variants={itemVariants}
-                    className="flex flex-col items-center"
-                >
-                    <h1 className="text-gray-400 text-2xl font-semibold">Best Score (Infinite):</h1>
-                    {(bestScoreInfinite.score !== null && bestScoreInfinite.time !== null) ?
-                        <div className="text-2xl font-bold text-gray-200">
-                            {bestScoreInfinite.score.toLocaleString()}
-                            <span className="text-lg text-gray-300 mx-2">({formatTime(bestScoreInfinite.time)})</span>
-                        </div>
-                        :
-                        <div className="text-xl font-bold text-gray-200">No scores yet!</div>
-                    }
-                </motion.div>
-                <Link to="/infinite">
+                <div className="flex flex-col sm:flex-row justify-between my-2 space-y-3">
+                    <motion.div
+                        variants={itemVariants}
+                        className="flex flex-col items-center"
+                    >
+                        <h1 className="text-gray-400 text-2xl font-semibold">Infinite</h1>
+                        <h1 className="text-gray-400 text-2xl font-semibold">Best Score:</h1>
+                        {(bestScoreInfinite.score !== null && bestScoreInfinite.time !== null) ?
+                            <div className="text-2xl font-bold text-gray-200">
+                                {bestScoreInfinite.score.toLocaleString()}
+                                <span
+                                    className="text-lg text-gray-300 mx-2">({formatTime(bestScoreInfinite.time)})</span>
+                            </div>
+                            :
+                            <div className="text-2xl font-bold text-gray-200">No scores yet!</div>
+                        }
+                    </motion.div>
 
+                    <motion.div
+                        variants={itemVariants}
+                        className="flex flex-col items-center"
+                    >
+                        <h1 className="text-gray-400 text-2xl font-semibold">Normal</h1>
+                        <h1 className="text-gray-400 text-2xl font-semibold">Best Score:</h1>
+                        {(bestScoreNormal.score !== null && bestScoreNormal.time !== null) ?
+                            <div className="text-2xl font-bold text-gray-200">
+                                {bestScoreNormal.score.toLocaleString()}
+                                <span
+                                    className="text-lg text-gray-300 mx-2">({formatTime(bestScoreNormal.time)})</span>
+                            </div>
+                            :
+                            <div className="text-2xl font-bold text-gray-200">No scores yet!</div>
+                        }
+                    </motion.div>
+                </div>
+
+
+                <Link to="/infinite">
                     <motion.button
                         className="w-full py-3 px-6 bg-white rounded-lg text-cyan-600 font-semibold text-lg flex items-center justify-between group"
                         variants={buttonVariants}
@@ -115,21 +148,22 @@ export const Home = () => {
                         </motion.div>
                     </motion.button>
                 </Link>
-
-                <motion.button
-                    className="w-full py-3 px-6 bg-white rounded-lg text-purple-700 font-semibold text-lg flex items-center justify-between group"
-                    variants={buttonVariants}
-                    initial="initial"
-                    whileHover="hover"
-                >
-                    <div className="flex items-center">
-                        <Bomb className="mr-2"/>
-                        Normal Minesweeper
-                    </div>
-                    <motion.div variants={iconVariants}>
-                        <ChevronRight/>
-                    </motion.div>
-                </motion.button>
+                <Link to="/normal">
+                    <motion.button
+                        className="w-full py-3 px-6 bg-white rounded-lg text-purple-700 font-semibold text-lg flex items-center justify-between group"
+                        variants={buttonVariants}
+                        initial="initial"
+                        whileHover="hover"
+                    >
+                        <div className="flex items-center">
+                            <Bomb className="mr-2"/>
+                            Normal Minesweeper
+                        </div>
+                        <motion.div variants={iconVariants}>
+                            <ChevronRight/>
+                        </motion.div>
+                    </motion.button>
+                </Link>
             </motion.div>
         </motion.div>
     )
