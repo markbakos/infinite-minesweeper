@@ -1,8 +1,23 @@
 import { motion, Variants } from 'framer-motion'
 import {Bomb, Grid, ChevronRight} from 'lucide-react'
 import {Link} from "react-router-dom";
+import React, {useEffect, useState} from "react";
+import {Score} from "../types.ts";
 
 export const Home = () => {
+
+    const [bestScoreInfinite, setBestScoreInfinite] = useState<Score>({score: null, time: null})
+
+    useEffect(() => {
+        const score = localStorage.getItem("bestScore_infinite")
+        const time = localStorage.getItem("bestScoreTime_infinite")
+
+        if (score !== null && time !== null){
+            setBestScoreInfinite({
+                score: parseInt(score),
+                time: parseInt(time)})
+        }
+    }, []);
 
     const containerVariants: Variants = {
         hidden: { opacity: 0 },
@@ -45,6 +60,12 @@ export const Home = () => {
         }
     }
 
+    const formatTime = (time: number) => {
+        const minutes = Math.floor(time / 60000)
+        const seconds = Math.floor((time % 60000) / 1000)
+        return `${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`
+    }
+
     return (
         <motion.div
             className="bg-gradient-to-br from-gray-500 to-gray-700 min-h-screen w-screen flex flex-col justify-center items-center p-4"
@@ -56,14 +77,29 @@ export const Home = () => {
                 className="text-6xl font-bold text-white mb-8 text-center"
                 variants={itemVariants}
             >
-                Minesweeper Extra
+                Minesweeper
             </motion.h1>
 
             <motion.div
                 className="flex flex-col space-y-4 w-full max-w-md"
                 variants={itemVariants}
             >
+                <motion.div
+                    variants={itemVariants}
+                    className="flex flex-col items-center"
+                >
+                    <h1 className="text-gray-400 text-2xl font-semibold">Best Score (Infinite):</h1>
+                    {(bestScoreInfinite.score !== null && bestScoreInfinite.time !== null) ?
+                        <div className="text-2xl font-bold text-gray-200">
+                            {bestScoreInfinite.score.toLocaleString()}
+                            <span className="text-lg text-gray-300 mx-2">({formatTime(bestScoreInfinite.time)})</span>
+                        </div>
+                        :
+                        <div className="text-xl font-bold text-gray-200">No scores yet!</div>
+                    }
+                </motion.div>
                 <Link to="/infinite">
+
                     <motion.button
                         className="w-full py-3 px-6 bg-white rounded-lg text-cyan-600 font-semibold text-lg flex items-center justify-between group"
                         variants={buttonVariants}
@@ -71,11 +107,11 @@ export const Home = () => {
                         whileHover="hover"
                     >
                         <div className="flex items-center">
-                            <Grid className="mr-2" />
+                            <Grid className="mr-2"/>
                             Infinite Minesweeper
                         </div>
                         <motion.div variants={iconVariants}>
-                            <ChevronRight />
+                            <ChevronRight/>
                         </motion.div>
                     </motion.button>
                 </Link>
@@ -87,11 +123,11 @@ export const Home = () => {
                     whileHover="hover"
                 >
                     <div className="flex items-center">
-                        <Bomb className="mr-2" />
+                        <Bomb className="mr-2"/>
                         Normal Minesweeper
                     </div>
                     <motion.div variants={iconVariants}>
-                        <ChevronRight />
+                        <ChevronRight/>
                     </motion.div>
                 </motion.button>
             </motion.div>
