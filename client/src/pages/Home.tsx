@@ -95,7 +95,7 @@ export const Home = () => {
                 className="flex flex-col space-y-4 w-full max-w-md"
                 variants={itemVariants}
             >
-                <div className="flex flex-col sm:flex-row justify-between my-2 space-y-3">
+                <div className="flex flex-col sm:flex-row justify-between my-2 space-y-3 sm:space-y-0">
                     <motion.div
                         variants={itemVariants}
                         className="flex flex-col items-center"
