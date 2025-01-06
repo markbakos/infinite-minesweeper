@@ -19,12 +19,11 @@ export const Home = () => {
                 time: parseInt(timeInf)})
         }
 
-        const scoreNorm = localStorage.getItem("bestScore_infinite")
-        const timeNorm = localStorage.getItem("bestScoreTime_infinite")
+        const timeNorm = localStorage.getItem("bestScoreTime_normal")
 
-        if (scoreNorm !== null && timeNorm !== null){
+        if (timeNorm !== null){
             setBestScoreNormal({
-                score: parseInt(scoreNorm),
+                score: null,
                 time: parseInt(timeNorm)})
         }
 
@@ -118,12 +117,10 @@ export const Home = () => {
                         className="flex flex-col items-center"
                     >
                         <h1 className="text-gray-400 text-2xl font-semibold">Normal</h1>
-                        <h1 className="text-gray-400 text-2xl font-semibold">Best Score:</h1>
-                        {(bestScoreNormal.score !== null && bestScoreNormal.time !== null) ?
+                        <h1 className="text-gray-400 text-2xl font-semibold">Best Time:</h1>
+                        {(bestScoreNormal.time !== null) ?
                             <div className="text-2xl font-bold text-gray-200">
-                                {bestScoreNormal.score.toLocaleString()}
-                                <span
-                                    className="text-lg text-gray-300 mx-2">({formatTime(bestScoreNormal.time)})</span>
+                                {formatTime(bestScoreNormal.time)}
                             </div>
                             :
                             <div className="text-2xl font-bold text-gray-200">No scores yet!</div>
