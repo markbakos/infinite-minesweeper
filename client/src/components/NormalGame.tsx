@@ -1,16 +1,41 @@
-import { Cell } from "../types"
+import {Cell, Score} from "../types"
 import {useEffect, useState} from "react";
+import {Bomb, Flag, RefreshCw} from "lucide-react";
 
 const NormalGame: React.FC = () => {
-    const size = 20
-    const bombCount = 50
+    const size = 15
+    const bombCount = 35
     const [grid, setGrid] = useState<Cell[][]>([])
     const [isGameOver, setIsGameOver] = useState(false)
+    const [isGameWon, setIsGameWon] = useState(false)
     const [isFlagging, setIsFlagging] = useState(false);
+    const [startTime, setStartTime] = useState<Date | null>(null)
+    const [elapsedTime, setElapsedTime] = useState(0)
+    const [bestTime, setBestTime] = useState<Score>({score: null, time: null});
 
     useEffect(() => {
         initializeGrid()
-    }, [size, bombCount]);
+    }, [size, bombCount])
+
+    useEffect(() => {
+        if (!startTime || isGameOver) return
+
+        const interval = setInterval(() => {
+            setElapsedTime(Math.floor((new Date().getTime() - startTime.getTime())))
+        }, 1000)
+
+        return () => clearInterval(interval)
+    }, [startTime, isGameOver])
+
+    useEffect(() => {
+        const time = localStorage.getItem("bestScoreTime_normal")
+
+        if (time !== null){
+            setBestTime({
+                score: null,
+                time: parseInt(time)})
+        }
+    }, []);
 
     const initializeGrid = () => {
         const newGrid : Cell[][] = Array.from({ length: size }, () =>
@@ -100,6 +125,10 @@ const NormalGame: React.FC = () => {
     const handleClick = (row: number, col: number) => {
         if(isGameOver) return
 
+        if (!startTime) {
+            setStartTime(new Date())
+        }
+
         if(isFlagging) {
             setGrid((prev) => {
                 const newGrid = prev.map((row) =>
@@ -118,7 +147,20 @@ const NormalGame: React.FC = () => {
                     setIsGameOver(true)
                     return newGrid
                 }
-                return revealCell(newGrid, row, col)
+
+                const updatedGrid = revealCell(newGrid, row, col)
+
+                if (isMapFinished(updatedGrid)) {
+                    setIsGameOver(true)
+                    setIsGameWon(true)
+                    if (bestTime.time === null || elapsedTime < bestTime.time) {
+                        setBestTime({score: null, time: elapsedTime})
+                        localStorage.setItem('bestScoreTime_normal', elapsedTime.toString())
+                    }
+
+                }
+
+                return updatedGrid
             })
         }
     }
@@ -136,9 +178,23 @@ const NormalGame: React.FC = () => {
         })
     }
 
+    const isMapFinished = (grid: Cell[][]): boolean => {
+        for (let row of grid) {
+            for (let cell of row) {
+                if (!cell.revealed && cell.value !== "bomb") {
+                    return false
+                }
+            }
+        }
+        return true
+    }
+
     const restartGame = () => {
         initializeGrid()
+        setIsGameWon(false)
         setIsGameOver(false)
+        setElapsedTime(0)
+        setStartTime(null)
     }
 
     const getNumberColor = (value: number | "bomb") => {
@@ -164,37 +220,107 @@ const NormalGame: React.FC = () => {
         }
     }
 
+    const formatTime = (time: number) => {
+        const minutes = Math.floor(time / 60000)
+        const seconds = Math.floor((time % 60000) / 1000)
+        return `${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`
+    }
+
+
     return (
-        <>
-            <button onClick={() => setIsFlagging(!isFlagging)} className="border-gray-600 border bg-gray-500 w-56 h-8 text-white text-lg">
+        <div className="flex flex-col items-center justify-center p-4 min-w-[20vw]">
+            {isGameWon &&
+            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                <div className="bg-white rounded-lg p-8 max-w-sm w-full">
+                    <h2 className="text-2xl font-bold text-gray-800 mb-4">Congratulations!</h2>
+                    <p className="text-gray-600 mb-2">You completed the map!</p>
+                    <p className="text-gray-600 mb-4 flex justify-between">
+                        <div>
+                            Current time: <span className="font-semibold">{formatTime(elapsedTime)}</span>
+                        </div>
+                        <div>
+                            Best Time: <span className="font-semibold">{bestTime.time === null ? formatTime(elapsedTime) : formatTime(bestTime.time)}</span>
+                        </div>
+
+                    </p>
+                    <button
+                        onClick={restartGame}
+                        className="mt-4 w-full py-2 px-4 bg-green-400 hover:bg-green-500 text-gray-900 font-semibold rounded-md transition-all duration-300 flex items-center justify-center space-x-2"
+                    >
+                        <RefreshCw className="w-5 h-5"/>
+                        <span>New Game</span>
+                    </button>
+                </div>
+            </div>
+            }
+
+            <div className="flex justify-between items-center w-1/2 min-w-[80vw] md:min-w-[50vw] lg:min-w-[20vw]">
+                <div className="text-center">
+                    <h2 className="text-lg font-semibold text-gray-400">Best Time</h2>
+                    <p className="text-3xl font-bold text-gray-200">{bestTime.time ? formatTime(bestTime.time) : "No time yet!"}</p>
+                </div>
+                <div className="text-center">
+                    <h2 className="text-lg font-semibold text-gray-400">Time</h2>
+                    <p className="text-3xl font-bold text-gray-200">{formatTime(elapsedTime)}</p>
+                </div>
+            </div>
+
+            <button
+                onClick={() => setIsFlagging(!isFlagging)}
+                className={`w-full py-2 px-4 rounded-md text-gray-900 font-semibold transition-all duration-300 my-2 ${
+                    isFlagging
+                        ? 'bg-red-400 hover:bg-red-500'
+                        : 'bg-blue-400 hover:bg-blue-500'
+                }`}
+            >
                 {!isFlagging ? "Enable Flagging" : "Disable Flagging"}
             </button>
-            <div className="inline-block">
+
+            <div className="inline-block border-2 border-gray-500">
                 {grid.map((row, rowIndex) =>
                     <div key={rowIndex} className="flex">
                         {row.map((cell, colIndex) => (
                             <div
                                 key={`${rowIndex}-${colIndex}`}
-                                className={`w-8 h-8 border border-gray-500 bg-gray-200  ${cell.revealed ? cell.value === "bomb" ? "bg-red-500" : "bg-gray-400" : "bg-gray-200 hover:bg-gray-300"}`}
+                                className={`w-8 h-8 border border-gray-500 bg-gray-200 ${
+                                    cell.revealed
+                                        ? cell.value === "bomb"
+                                            ? "bg-red-400"
+                                            : "bg-gray-400"
+                                        : "hover:bg-gray-300"
+                                }`}
                                 onClick={() => handleClick(rowIndex, colIndex)}
                                 onContextMenu={(e) => handleRightClick(e, rowIndex, colIndex)}
                             >
-                                {cell.revealed && cell.value === "bomb" &&
-                                    <p className="select-none text-center text-lg font-semibold">💣</p>}
-                                {cell.revealed && cell.value !== 0 && cell.value !== "bomb" &&
-                                    <p className={`select-none text-center text-2xl font-bold ${getNumberColor(cell.value)}`}>{cell.value}</p>}
-                                {cell.flagged && !cell.revealed &&
-                                    <p className="select-none text-center text-lg font-semibold">🚩</p>}
+                                {cell.revealed && cell.value === "bomb" && (
+                                    <p className="select-none text-lg font-semibold flex justify-center items-center h-full">
+                                        <Bomb className="w-5 h-5 text-red-900"/>
+                                    </p>
+                                )}
+                                {cell.revealed && cell.value !== 0 && cell.value !== "bomb" && (
+                                    <p className={`select-none text-center text-2xl font-bold ${getNumberColor(cell.value)}`}>
+                                        {cell.value}
+                                    </p>
+                                )}
+                                {cell.flagged && !cell.revealed && (
+                                    <p className="select-none text-lg font-semibold flex items-center justify-center h-full">
+                                        <Flag className="w-6 h-6 text-red-600"/>
+                                    </p>
+                                )}
                             </div>
                         ))}
                     </div>
                 )}
             </div>
-            <button onClick={restartGame} className="border-gray-600 border bg-gray-500 w-32 h-8 text-white text-xl">New
-                Game
-            </button>
-        </>
 
+            <button
+                onClick={restartGame}
+                className="mt-4 w-full py-2 px-4 bg-green-400 hover:bg-green-500 text-gray-900 font-semibold rounded-md transition-all duration-300 flex items-center justify-center space-x-2"
+            >
+                <RefreshCw className="w-5 h-5"/>
+                <span>New Game</span>
+            </button>
+        </div>
     )
 }
 
