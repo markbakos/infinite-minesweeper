@@ -31,9 +31,9 @@ func RegisterUser(c *gin.Context) {
 	userCollection := getUserCollection()
 
 	var existingUser models.User
-	err := userCollection.FindOne(context.Background(), bson.M{"email": request.Email}).Decode(&existingUser)
+	err := userCollection.FindOne(context.Background(), bson.M{"username": request.Username}).Decode(&existingUser)
 	if err == nil {
-		c.JSON(http.StatusConflict, gin.H{"error": "User with this email already exists"})
+		c.JSON(http.StatusConflict, gin.H{"error": "User with this username already exists"})
 		return
 	}
 
@@ -47,7 +47,6 @@ func RegisterUser(c *gin.Context) {
 	newUser := models.User{
 		ID:        primitive.NewObjectID(),
 		Username:  request.Username,
-		Email:     request.Email,
 		Password:  hashedPassword,
 		CreatedAt: now,
 		UpdatedAt: now,
@@ -68,7 +67,6 @@ func RegisterUser(c *gin.Context) {
 	c.JSON(http.StatusCreated, models.AuthResponse{
 		Token:    token,
 		Username: newUser.Username,
-		Email:    newUser.Email,
 	})
 }
 
@@ -82,14 +80,14 @@ func LoginUser(c *gin.Context) {
 	userCollection := getUserCollection()
 
 	var user models.User
-	err := userCollection.FindOne(context.Background(), bson.M{"email": request.Email}).Decode(&user)
+	err := userCollection.FindOne(context.Background(), bson.M{"username": request.Username}).Decode(&user)
 	if err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid email or password"})
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid username or password"})
 		return
 	}
 
 	if !utils.CheckPasswordHash(request.Password, user.Password) {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid email or password"})
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid username or password"})
 		return
 	}
 
@@ -102,7 +100,6 @@ func LoginUser(c *gin.Context) {
 	c.JSON(http.StatusOK, models.AuthResponse{
 		Token:    token,
 		Username: user.Username,
-		Email:    user.Email,
 	})
 }
 
@@ -135,6 +132,5 @@ func GetCurrentUser(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"id":       user.ID,
 		"username": user.Username,
-		"email":    user.Email,
 	})
 }

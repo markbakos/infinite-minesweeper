@@ -8,7 +8,6 @@ import (
 type User struct {
 	ID          primitive.ObjectID `bson:"_id,omitempty" json:"id,omitempty"`
 	Username    string             `bson:"username" json:"username" binding:"required"`
-	Email       string             `bson:"email" json:"email" binding:"required,email"`
 	Password    string             `bson:"password" json:"-" binding:"required"`
 	CreatedAt   time.Time          `bson:"created_at" json:"created_at"`
 	UpdatedAt   time.Time          `bson:"updated_at" json:"updated_at"`
@@ -25,16 +24,14 @@ type GameRecord struct {
 type AuthResponse struct {
 	Token    string `json:"token"`
 	Username string `json:"username"`
-	Email    string `json:"email"`
 }
 
 type LoginRequest struct {
-	Email    string `json:"email" binding:"required,email"`
+	Username string `json:"username" binding:"required"`
 	Password string `json:"password" binding:"required"`
 }
 
 type RegisterRequest struct {
 	Username string `json:"username" binding:"required"`
-	Email    string `json:"email" binding:"required,email"`
 	Password string `json:"password" binding:"required"`
 }
