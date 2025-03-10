@@ -1,8 +1,9 @@
 package models
 
 import (
-	"go.mongodb.org/mongo-driver/bson/primitive"
 	"time"
+
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type LeaderboardEntry struct {
@@ -17,8 +18,19 @@ type LeaderboardEntry struct {
 	IsGuest       bool               `bson:"is_guest" json:"is_guest"`
 }
 
-type LeaderboardRequest struct {
-	GameType string `form:"game_type" binding:"required"`
-	Limit    int    `form:"limit,default=10"`
-	Skip     int    `form:"skip,default=0"`
+type LeaderboardResponse struct {
+	Entries  []LeaderboardEntry `json:"entries"`
+	Total    int64              `json:"total"`
+	GameType string             `json:"game_type"`
+	Page     int                `json:"page"`
+	Limit    int                `json:"limit"`
+}
+
+type LeaderboardStats struct {
+	TotalPlayers      int    `json:"total_players"`
+	RegisteredPlayers int    `json:"registered_players"`
+	GuestPlayers      int    `json:"guest_players"`
+	HighestScore      int    `json:"highest_score"`
+	AverageScore      int    `json:"average_score"`
+	GameType          string `json:"game_type"`
 }

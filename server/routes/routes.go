@@ -13,13 +13,22 @@ func SetupRoutes(router *gin.Engine) {
 		{
 			auth.POST("/login", controllers.LoginUser)
 			auth.POST("/register", controllers.RegisterUser)
+
 			auth.GET("/guest", controllers.CreateGuestSession)
 		}
+
+		api.GET("/leaderboard", controllers.GetLeaderboard)
 	}
 
 	protected := router.Group("/api")
 	protected.Use(middleware.AuthMiddleware())
 	{
 		protected.GET("/user", controllers.GetCurrentUser)
+
+		game := protected.Group("/game")
+		{
+			game.POST("/record", controllers.SaveGameRecord)
+			game.GET("/records", controllers.GetUserGameRecords)
+		}
 	}
 }
