@@ -13,6 +13,7 @@ func SetupRoutes(router *gin.Engine) {
 		{
 			auth.POST("/login", controllers.LoginUser)
 			auth.POST("/register", controllers.RegisterUser)
+			auth.GET("/guest", controllers.CreateGuestSession)
 		}
 	}
 
