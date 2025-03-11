@@ -223,7 +223,7 @@ const Grid: React.FC = () => {
 
     const handleGameOver = async () => {
         if (bestScore.score === null || bestScore.time === null || score > bestScore.score || (score === bestScore.score && elapsedTime < bestScore.time)){
-            setBestScore({score: score, time: parseInt(formatTime(elapsedTime))})
+            setBestScore({score: score, time: elapsedTime})
             await updateGameRecord('infinite', score, elapsedTime)
         }
     }
@@ -255,7 +255,7 @@ const Grid: React.FC = () => {
         const minutes = Math.floor(time / 60000);
         const seconds = Math.floor((time % 60000) / 1000);
         return `${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
-    };
+    }
 
     return (
         <div className="flex flex-col items-center justify-center p-4">
