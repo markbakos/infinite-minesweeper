@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react"
 import { motion, Variants } from "framer-motion"
 import axios from "axios"
-import { Trophy, Medal, User, Ghost } from "lucide-react"
+import { Trophy, Medal, User, Ghost, CalendarIcon } from "lucide-react"
 import {Header} from "../components/Header.tsx";
 
 interface LeaderboardEntry {
@@ -32,6 +32,14 @@ export const Leaderboard = () => {
             month: 'short',
             day: 'numeric',
         })
+    }
+
+    const getDaysSince = (dateString: string) => {
+        const date = new Date(dateString)
+        const today = new Date()
+        const diffTime = Math.abs(today.getTime() - date.getTime())
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+        return diffDays >= 100 ? '99+' : diffDays
     }
 
     const containerVariants: Variants = {
@@ -138,8 +146,13 @@ export const Leaderboard = () => {
                                             {entry.score}
                                         </span>
                                     </div>
-                                    <div className="text-gray-400 text-sm">
+                                    <div className="flex items-center text-gray-400 text-sm gap-2 relative">
+                                        <CalendarIcon className="w-5 h-5 mr-1"/>
                                         {formatDate(entry.played_at)}
+                                        <div
+                                            className="absolute -top-2 left-3 bg-red-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center select-none">
+                                            {getDaysSince(entry.played_at)}
+                                        </div>
                                     </div>
                                 </div>
                             </div>
