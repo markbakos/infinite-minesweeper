@@ -1,5 +1,5 @@
 import { motion, Variants } from 'framer-motion'
-import {Bomb, Grid, ChevronRight, Trophy} from 'lucide-react'
+import {Bomb, Grid, ChevronRight, Trophy, FileQuestion} from 'lucide-react'
 import {Link} from "react-router-dom";
 import {useEffect, useState} from "react";
 import {Score} from "../types.ts";
@@ -150,13 +150,29 @@ export const Home = () => {
                 </Link>
                 <Link to="/leaderboard">
                     <motion.button
-                        className="w-full py-3 px-6 bg-white rounded-lg text-yellow-600 font-semibold text-lg flex items-center justify-between group"
+                        className="w-full mt-5 py-3 px-6 bg-white rounded-lg text-yellow-600 font-semibold text-lg flex items-center justify-between group"
                         initial="initial"
                         whileHover="hover"
                     >
                         <div className="flex items-center">
                             <Trophy className="mr-2"/>
                             Leaderboard
+                        </div>
+                        <motion.div variants={iconVariants}>
+                            <ChevronRight/>
+                        </motion.div>
+                    </motion.button>
+
+                </Link>
+                <Link to="/tutorial">
+                    <motion.button
+                        className="w-full py-3 px-6 bg-white rounded-lg text-gray-600 font-semibold text-lg flex items-center justify-between group"
+                        initial="initial"
+                        whileHover="hover"
+                    >
+                        <div className="flex items-center">
+                            <FileQuestion className="mr-2"/>
+                            How to play?
                         </div>
                         <motion.div variants={iconVariants}>
                             <ChevronRight/>
