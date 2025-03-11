@@ -28,7 +28,7 @@ export const fetchScores = async () => {
     if (!token) return null
 
     try {
-        const response = await axios.get<GameRecordResponse>('http://localhost:8080/api/game/records', {
+        const response = await axios.get<GameRecordResponse>('https://infinite-minesweeper-backend.onrender.com/api/game/records', {
             headers: {
                 Authorization: `Bearer ${token}`
             }
@@ -74,7 +74,7 @@ export const updateGameRecord = async (gameType: 'normal' | 'infinite', score: n
     if (!token) return
 
     try {
-        const response = await axios.post('http://localhost:8080/api/game/record', {
+        const response = await axios.post('https://infinite-minesweeper-backend.onrender.com/api/game/record', {
             game_type: gameType,
             score: score || 0,
             time_in_seconds: time

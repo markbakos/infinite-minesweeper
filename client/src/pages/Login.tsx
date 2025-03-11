@@ -3,6 +3,7 @@ import {Lock, ChevronRight, User} from "lucide-react"
 import {Link, useNavigate} from "react-router-dom"
 import {useState} from "react";
 import axios from "axios";
+import {Header} from "../components/Header.tsx";
 
 export const Login = () => {
     const [username, setUsername] = useState("")
@@ -22,7 +23,7 @@ export const Login = () => {
         setError("")
 
         try {
-            const response = await axios.post("http://localhost:8080/api/auth/login", {
+            const response = await axios.post("https://infinite-minesweeper-backend.onrender.com/api/auth/login", {
                 username,
                 password
             }, {
@@ -93,6 +94,7 @@ export const Login = () => {
             initial="hidden"
             animate="visible"
         >
+            <Header />
             <motion.h1 className="text-5xl sm:text-6xl font-bold text-white mb-8 text-center" variants={itemVariants}>
                 Login
             </motion.h1>
