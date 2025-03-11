@@ -3,6 +3,7 @@ import {Game} from "./pages/Game.tsx";
 import {Home} from "./pages/Home.tsx";
 import {SignUp} from "./pages/SignUp.tsx";
 import {Login} from "./pages/Login.tsx";
+import {Leaderboard} from "./pages/Leaderboard.tsx";
 
 function App() {
     return (
@@ -14,6 +15,7 @@ function App() {
                     <Route path="/normal" element={<Game game="normal" />} />
                     <Route path="/signup" element={<SignUp />} />
                     <Route path="/login" element={<Login />} />
+                    <Route path="/leaderboard" element={<Leaderboard />} />
                 </Routes>
             </div>
         </Router>
