@@ -93,6 +93,12 @@ const Grid: React.FC = () => {
         }
     }
 
+    useEffect(() => {
+        if (isGameOver) {
+            handleGameOver()
+        }
+    }, [isGameOver])
+
     const handleClick = (x: number, y: number) => {
         if(isGameOver) return
 
@@ -119,11 +125,10 @@ const Grid: React.FC = () => {
 
                 if (cell.value === "bomb") {
                     cell.revealed = true
+
                     setIsGameOver(true)
-
-                    handleGameOver()
-
                     setStartTime(null)
+
                     return newGrid
                 }
 
@@ -170,9 +175,6 @@ const Grid: React.FC = () => {
     }
 
     const restartGame = () => {
-
-        if (!isGameOver) handleGameOver()
-
         setIsGameOver(false)
         setScore(0)
         setElapsedTime(0)
