@@ -65,7 +65,7 @@ export const Leaderboard = () => {
     useEffect(() => {
         const fetchLeaderboard = async () => {
             try {
-                const response = await axios.get<LeaderboardResponse>("http://localhost:8080/api/leaderboard?gameType=infinite&limit=10&skip=0")
+                const response = await axios.get<LeaderboardResponse>("https://infinite-minesweeper-backend.onrender.com/api/leaderboard?gameType=infinite&limit=10&skip=0")
                 setLeaderboardData(response.data.leaderboard)
                 setError("")
             } catch (e) {

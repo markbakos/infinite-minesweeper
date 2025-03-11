@@ -25,7 +25,7 @@ export const Header = () => {
         }
 
         try {
-            const response = await axios.get("http://localhost:8080/api/user", {
+            const response = await axios.get("https://infinite-minesweeper-backend.onrender.com/api/user", {
                 headers: {
                     Authorization: `Bearer ${token}`
                 }
