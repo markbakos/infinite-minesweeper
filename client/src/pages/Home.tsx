@@ -3,6 +3,7 @@ import {Bomb, Grid, ChevronRight} from 'lucide-react'
 import {Link} from "react-router-dom";
 import {useEffect, useState} from "react";
 import {Score} from "../types.ts";
+import {Header} from "../components/Header.tsx";
 
 export const Home = () => {
 
@@ -26,7 +27,6 @@ export const Home = () => {
                 score: null,
                 time: parseInt(timeNorm)})
         }
-
     }, []);
 
     const containerVariants: Variants = {
@@ -46,15 +46,6 @@ export const Home = () => {
             y: 0,
             opacity: 1,
             transition: { type: 'spring', stiffness: 300, damping: 24 }
-        }
-    }
-
-    const buttonVariants: Variants = {
-        initial: { scale: 1, boxShadow: '0px 0px 0px rgba(0, 0, 0, 0)' },
-        hover: {
-            scale: 1.05,
-            boxShadow: '0px 5px 15px rgba(0, 0, 0, 0.1)',
-            transition: { type: 'spring', stiffness: 400, damping: 10 }
         }
     }
 
@@ -83,6 +74,7 @@ export const Home = () => {
             initial="hidden"
             animate="visible"
         >
+            <Header />
             <motion.h1
                 className="text-5xl sm:text-6xl font-bold text-white mb-8 text-center"
                 variants={itemVariants}
@@ -132,7 +124,6 @@ export const Home = () => {
                 <Link to="/infinite">
                     <motion.button
                         className="w-full py-3 px-6 bg-white rounded-lg text-cyan-600 font-semibold text-lg flex items-center justify-between group"
-                        variants={buttonVariants}
                         initial="initial"
                         whileHover="hover"
                     >
@@ -148,7 +139,6 @@ export const Home = () => {
                 <Link to="/normal">
                     <motion.button
                         className="w-full py-3 px-6 bg-white rounded-lg text-purple-700 font-semibold text-lg flex items-center justify-between group"
-                        variants={buttonVariants}
                         initial="initial"
                         whileHover="hover"
                     >
