@@ -1,33 +1,28 @@
 import { motion, Variants } from 'framer-motion'
-import {Bomb, Grid, ChevronRight} from 'lucide-react'
+import {Bomb, Grid, ChevronRight, Trophy} from 'lucide-react'
 import {Link} from "react-router-dom";
 import {useEffect, useState} from "react";
 import {Score} from "../types.ts";
 import {Header} from "../components/Header.tsx";
+import { fetchScores } from "../services/scoreService.ts";
 
 export const Home = () => {
 
     const [bestScoreInfinite, setBestScoreInfinite] = useState<Score>({score: null, time: null})
     const [bestScoreNormal, setBestScoreNormal] = useState<Score>({score: null, time: null})
 
-    useEffect(() => {
-        const scoreInf = localStorage.getItem("bestScore_infinite")
-        const timeInf = localStorage.getItem("bestScoreTime_infinite")
-
-        if (scoreInf !== null && timeInf !== null){
-            setBestScoreInfinite({
-                score: parseInt(scoreInf),
-                time: parseInt(timeInf)})
+    useEffect(() =>
+    {
+        const fetchGameScores = async () => {
+            const records = await fetchScores()
+            if (records) {
+                setBestScoreInfinite(records.infinite)
+                setBestScoreNormal(records.normal)
+            }
         }
 
-        const timeNorm = localStorage.getItem("bestScoreTime_normal")
-
-        if (timeNorm !== null){
-            setBestScoreNormal({
-                score: null,
-                time: parseInt(timeNorm)})
-        }
-    }, []);
+        fetchGameScores()
+    }, [])
 
     const containerVariants: Variants = {
         hidden: { opacity: 0 },
@@ -109,11 +104,13 @@ export const Home = () => {
                         className="flex flex-col items-center"
                     >
                         <h1 className="text-gray-400 text-2xl font-semibold">Normal</h1>
-                        <h1 className="text-gray-400 text-2xl font-semibold">Best Time:</h1>
-                        {(bestScoreNormal.time !== null) ?
+                        <h1 className="text-gray-400 text-2xl font-semibold">Best Score:</h1>
+                        {(bestScoreNormal.time !== null && bestScoreNormal.score !== null) ?
                             <div className="text-2xl font-bold text-gray-200">
-                                {formatTime(bestScoreNormal.time)}
-                            </div>
+                                {bestScoreNormal.score.toLocaleString()}
+                            <span
+                            className="text-lg text-gray-300 mx-2">({formatTime(bestScoreNormal.time)})</span>
+                </div>
                             :
                             <div className="text-2xl font-bold text-gray-200">No scores yet!</div>
                         }
@@ -145,6 +142,21 @@ export const Home = () => {
                         <div className="flex items-center">
                             <Bomb className="mr-2"/>
                             Normal Minesweeper
+                        </div>
+                        <motion.div variants={iconVariants}>
+                            <ChevronRight/>
+                        </motion.div>
+                    </motion.button>
+                </Link>
+                <Link to="/leaderboard">
+                    <motion.button
+                        className="w-full py-3 px-6 bg-white rounded-lg text-yellow-600 font-semibold text-lg flex items-center justify-between group"
+                        initial="initial"
+                        whileHover="hover"
+                    >
+                        <div className="flex items-center">
+                            <Trophy className="mr-2"/>
+                            Leaderboard
                         </div>
                         <motion.div variants={iconVariants}>
                             <ChevronRight/>

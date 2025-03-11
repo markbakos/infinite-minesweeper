@@ -1,6 +1,7 @@
 import { Cell, Score } from "../types"
 import React, {useEffect, useState} from "react"
 import {Bomb, ChevronRight, ChevronLeft, ChevronUp, ChevronDown, Flag, RefreshCw} from "lucide-react";
+import {fetchScores, updateGameRecord} from "../services/scoreService.ts";
 
 const Grid: React.FC = () => {
     const viewSize = 15
@@ -120,12 +121,7 @@ const Grid: React.FC = () => {
                     cell.revealed = true
                     setIsGameOver(true)
 
-                    if(bestScore.score === null || bestScore.time === null || score > bestScore.score || (score === bestScore.score && elapsedTime < bestScore.time)){
-                        setBestScore({score: score, time: elapsedTime})
-                        localStorage.setItem('bestScore_infinite', score.toString())
-                        localStorage.setItem('bestScoreTime_infinite', elapsedTime.toString())
-                    }
-
+                    handleGameOver()
 
                     setStartTime(null)
                     return newGrid
@@ -140,14 +136,14 @@ const Grid: React.FC = () => {
     useEffect(() => {
         generateCells(viewport.x, viewport.y, viewSize, viewSize)
 
-        const score = localStorage.getItem("bestScore_infinite")
-        const time = localStorage.getItem("bestScoreTime_infinite")
-
-        if (score !== null && time !== null){
-            setBestScore({
-                score: parseInt(score),
-                time: parseInt(time)})
+        const fetchGameScores = async () => {
+            const records = await fetchScores()
+            if (records?.infinite) {
+                setBestScore(records.infinite)
+            }
         }
+
+        fetchGameScores()
     }, []);
 
     useEffect(() => {
@@ -174,6 +170,9 @@ const Grid: React.FC = () => {
     }
 
     const restartGame = () => {
+
+        if (!isGameOver) handleGameOver()
+
         setIsGameOver(false)
         setScore(0)
         setElapsedTime(0)
@@ -220,6 +219,13 @@ const Grid: React.FC = () => {
         }
 
         setGrid(newGrid)
+    }
+
+    const handleGameOver = async () => {
+        if (bestScore.score === null || bestScore.time === null || score > bestScore.score || (score === bestScore.score && elapsedTime < bestScore.time)){
+            setBestScore({score: score, time: parseInt(formatTime(elapsedTime))})
+            await updateGameRecord('infinite', score, elapsedTime)
+        }
     }
 
     const getNumberColor = (value: number | "bomb") => {
