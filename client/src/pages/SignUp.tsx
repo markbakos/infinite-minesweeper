@@ -1,6 +1,6 @@
 import {motion, type Variants} from "framer-motion"
 import {ChevronRight, Lock, User} from "lucide-react"
-import {Link} from "react-router-dom"
+import {Link, useNavigate} from "react-router-dom"
 import {useState} from "react"
 import axios from "axios";
 
@@ -9,6 +9,8 @@ export const SignUp = () => {
     const [username, setUsername] = useState("")
     const [password, setPassword] = useState("")
     const [confirmPassword, setConfirmPassword] = useState("")
+
+    const navigate = useNavigate()
 
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState("");
@@ -27,7 +29,7 @@ export const SignUp = () => {
         setError("")
 
         try {
-            await axios.post("http://localhost:8080/api/auth/register", {
+            const response = await axios.post("http://localhost:8080/api/auth/register", {
                 username,
                 password
             }, {
@@ -35,6 +37,13 @@ export const SignUp = () => {
                     'Content-Type': 'application/json'
                 },
             })
+
+            if (response.data.token) {
+                localStorage.setItem("token", response.data.token)
+                navigate("/")
+            } else {
+                navigate("/login")
+            }
         }
         catch (e) {
             setError("Something went wrong")

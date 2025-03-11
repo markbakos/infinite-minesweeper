@@ -22,7 +22,7 @@ export const Login = () => {
         setError("")
 
         try {
-            await axios.post("http://localhost:8080/api/auth/login", {
+            const response = await axios.post("http://localhost:8080/api/auth/login", {
                 username,
                 password
             }, {
@@ -31,7 +31,12 @@ export const Login = () => {
                 },
             })
 
-            navigate("/")
+            if (response.data.token) {
+                localStorage.setItem("token", response.data.token)
+                navigate("/")
+            } else {
+            setError("No token returned from server")
+            }
         }
         catch (e) {
             setError("Something went wrong")
