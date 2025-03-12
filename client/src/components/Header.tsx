@@ -49,7 +49,7 @@ export const Header = () => {
     }
 
     if (loading) return (
-        <div className="bg-gray-800 p-4 z-20">
+        <div className="bg-gray-700 p-4 shadow-md fixed top-0 w-full z-20 mb-4">
             <div className="max-w-7xl mx-auto flex justify-end">
                 <div className="animate-pulse bg-gray-700 h-8 w-20 rounded"></div>
             </div>
